@@ -273,8 +273,10 @@ static uint32_t mxf_win32_mmap_read(MXFFileSysData *sysData, uint8_t *data, uint
         }
 
         // copy from memory mapped file to data array
+#ifdef _MSC_VER
         __try
         {
+#endif
             uint32_t avail = min(sysData->size - sysData->cursor, count);
             if (avail > 0)
             {
@@ -283,12 +285,14 @@ static uint32_t mxf_win32_mmap_read(MXFFileSysData *sysData, uint8_t *data, uint
                 count -= avail;
                 total_read += avail;
             }
+#ifdef _MSC_VER
         }
         __except (GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
         {
             // failed to read from the file mapping; return current value of "total_read"
             break;
         }
+#endif
     }
 
     return total_read;
@@ -310,8 +314,10 @@ static uint32_t mxf_win32_mmap_write(MXFFileSysData *sysData, const uint8_t *dat
         }
 
         // copy from data array to memory mapped file
+#ifdef _MSC_VER
         __try
         {
+#endif
             uint32_t avail = min(sysData->size - sysData->cursor, count);
             if (avail > 0)
             {
@@ -320,12 +326,14 @@ static uint32_t mxf_win32_mmap_write(MXFFileSysData *sysData, const uint8_t *dat
                 count -= avail;
                 total_written += avail;
             }
+#ifdef _MSC_VER
         }
         __except (GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
         {
             // failed to write to the file mapping; return current value of "total_written"
             break;
         }
+#endif
     }
 
     // move EOF, if data was written after the current EOF
